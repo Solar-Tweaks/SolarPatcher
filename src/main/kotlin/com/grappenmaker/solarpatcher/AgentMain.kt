@@ -61,7 +61,7 @@ fun premain(arg: String?, inst: Instrumentation) {
         println("An IO error occured when loading the config, error is above")
         println("Falling back to default config")
         Configuration()
-    }.modulesClone() // TODO: remove, see modulesClone function
+    }
 
     // Define transforms and visitors
     val transforms = configuration.modules.also {

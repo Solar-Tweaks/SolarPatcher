@@ -101,22 +101,6 @@ data class Configuration(
         .filter { it.visibility == KVisibility.PUBLIC }
         .map { it(this) }
         .filterIsInstance<Module>().filter { it.isEnabled || enableAll } + alwaysEnabledModules
-
-    // TODO: remove when kotlinx.serialization gets fixed
-    // See https://github.com/JetBrains/kotlin/pull/4727
-    fun modulesClone(): Configuration {
-        val cloneFun = this::copy
-        return cloneFun.callBy(cloneFun.parameters.filter {
-            it.typeClass?.java?.let { c -> Module::class.java.isAssignableFrom(c) } == true
-        }.associateWith { param ->
-            val clazz = param.typeClass!!
-            val func = clazz.functions.find { f -> f.name == "copy" } ?: error("No copy for $clazz?")
-            val instance = Configuration::class.memberProperties
-                .find { it.name == param.name }!!.get(this)
-
-            func.callBy(mapOf(func.instanceParameter!! to instance))
-        })
-    }
 }
 
 private val KParameter.typeClass get() = type.classifier as? KClass<*>
