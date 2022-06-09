@@ -315,10 +315,10 @@ fun findMethodFromClass(loader: () -> ClassNode?, condition: (MethodNode) -> Boo
     object : ReadOnlyProperty<Any, MethodInfo?> {
         private var method: MethodInfo? = null
 
-        override fun getValue(thisRef: Any, prop: KProperty<*>): MethodInfo? {
+        override fun getValue(thisRef: Any, property: KProperty<*>): MethodInfo? {
             if (method != null) return method
 
-            val owner = loader() ?: error("No class was found when finding a method for ${prop.name}!")
+            val owner = loader() ?: error("No class was found when finding a method for ${property.name}!")
             return owner.methods.find(condition)?.let { MethodInfo(owner, it) }?.also { method = it }
         }
     }

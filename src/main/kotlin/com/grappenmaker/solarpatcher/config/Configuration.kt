@@ -102,5 +102,3 @@ data class Configuration(
         .map { it(this) }
         .filterIsInstance<Module>().filter { it.isEnabled || enableAll } + alwaysEnabledModules
 }
-
-private val KParameter.typeClass get() = type.classifier as? KClass<*>
