@@ -118,7 +118,7 @@ fun getCodeCommands(hypixelCommands: Boolean): Map<String, Command> {
                 .atZone(ZoneId.systemDefault()).toOffsetDateTime()
         )
 
-        val moduleText = configuration.modules.map { m -> m::class.simpleName ?: "Unnamed" }
+        val moduleText = configuration.enabledModules.map { m -> m::class.simpleName ?: "Unnamed" }
             .sorted().joinToString()
 
         Accessors.ChatUtility.displayComponent(
@@ -181,7 +181,7 @@ fun getCodeCommands(hypixelCommands: Boolean): Map<String, Command> {
                 "text": "${Accessors.Utility.getServerIP() ?: "Singleplayer"}\n"
             },
             {
-                "text": "Active modules (${configuration.modules.size}): ",
+                "text": "Active modules (${configuration.enabledModules.size}): ",
                 "color": "green"
             },
             {

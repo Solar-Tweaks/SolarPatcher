@@ -84,7 +84,8 @@ data class Configuration(
     val enableWrapped: EnableWrapped = EnableWrapped(), // Re-enables lunar client Wrapped
     val customMods: CustomMods = CustomMods(), // Allows the user to define and use custom mods
     val removeChatDelay: RemoveChatDelay = RemoveChatDelay(), // Removes websocket chat delay
-    val allowCosmeticCombinations: AllowCosmeticCombinations = AllowCosmeticCombinations()
+    val allowCosmeticCombinations: AllowCosmeticCombinations = AllowCosmeticCombinations(),
+    val removeSplashBlur: RemoveSplashBlur = RemoveSplashBlur()
 ) {
     // RuntimeData -> Internal module to retrieve information about the current lunar installation
     // HandleNotifications -> forced because it fixes a Lunar Client bug, brings back the LCPacketNotification
@@ -97,7 +98,7 @@ data class Configuration(
     // Retrieved with reflection, yes it is slow but i dont want to put
     // the mess of all the modules twice.
     @Transient
-    val modules = Configuration::class.memberProperties
+    val enabledModules = Configuration::class.memberProperties
         .filter { it.visibility == KVisibility.PUBLIC }
         .map { it(this) }
         .filterIsInstance<Module>().filter { it.isEnabled || enableAll } + alwaysEnabledModules

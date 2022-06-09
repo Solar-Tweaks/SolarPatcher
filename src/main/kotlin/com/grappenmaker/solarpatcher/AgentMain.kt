@@ -29,8 +29,8 @@ import kotlinx.serialization.decodeFromString
 import java.io.File
 import java.io.IOException
 import java.lang.instrument.Instrumentation
-import java.net.URL
 import java.util.*
+import javax.swing.JOptionPane
 
 lateinit var configuration: Configuration
 
@@ -55,16 +55,20 @@ fun premain(arg: String?, inst: Instrumentation) {
         e.printStackTrace()
         println("Something went wrong deserializing the config, error is above")
         println("Falling back to default config")
+
+        errorPopup("Config appears to be invalid - please fix configuration issues (e.g. numeric values) or delete your config to fallback to default")
         Configuration()
     } catch (e: IOException) {
         e.printStackTrace()
         println("An IO error occured when loading the config, error is above")
         println("Falling back to default config")
+
+        errorPopup("Using default config, pass a valid config! (When on Solar Tweaks, disable skip checks)")
         Configuration()
     }
 
     // Define transforms and visitors
-    val transforms = configuration.modules.also {
+    val transforms = configuration.enabledModules.also {
         val moduleText = it.map { m -> m::class.simpleName ?: "Unnamed" }.sorted().joinToString()
         println("Using modules $moduleText")
     }
@@ -78,3 +82,6 @@ fun premain(arg: String?, inst: Instrumentation) {
     // Utility to store lunar client's class loader
     inst.addTransformer(LunarClassLoader)
 }
+
+private fun errorPopup(message: String) =
+    JOptionPane.showMessageDialog(null, message, "SolarPatcher - Error", JOptionPane.ERROR_MESSAGE)

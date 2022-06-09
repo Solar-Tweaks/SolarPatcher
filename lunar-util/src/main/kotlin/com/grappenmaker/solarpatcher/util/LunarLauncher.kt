@@ -67,6 +67,7 @@ fun main(args: Array<String>) {
 
     // Read the configuration
     val parsed = ConfigFactory.parseReader(stream.reader()).resolve()
+    stream.close()
     val versionConfig = parsed.getConfig(confVersion)
     val dependencies = versionConfig.getStringList("dependencies")
 

@@ -84,8 +84,7 @@ fun MethodVisitor.getField(field: Field) =
         Type.getDescriptor(field.type)
     )
 
-fun MethodVisitor.getField(prop: KProperty<*>) =
-    getField(prop.javaField ?: error("No valid java field available"))
+fun MethodVisitor.getProperty(prop: KProperty<*>) = invokeMethod(prop.getter)
 
 fun MethodVisitor.getField(desc: FieldDescription, static: Boolean = desc.access and ACC_STATIC != 0) =
     visitFieldInsn(if (static) GETSTATIC else GETFIELD, desc.owner, desc.name, desc.descriptor)
@@ -279,4 +278,30 @@ fun MethodVisitor.createLookupSwitch(default: Label, cases: Map<Int, MethodVisit
 
     visitLookupSwitchInsn(default, sorted.keys.toIntArray(), entries.map { it.first }.toTypedArray())
     entries.forEach { (_, code) -> code() }
+}
+
+// Utility to implement a stub value return
+fun MethodVisitor.returnStub(returnType: Type) = when (returnType.sort) {
+    Type.VOID -> visitInsn(RETURN)
+    Type.BOOLEAN, Type.BYTE, Type.SHORT, Type.CHAR, Type.INT -> {
+        visitInsn(ICONST_0)
+        visitInsn(IRETURN)
+    }
+    Type.FLOAT -> {
+        visitInsn(FCONST_0)
+        visitInsn(FRETURN)
+    }
+    Type.DOUBLE -> {
+        visitInsn(DCONST_0)
+        visitInsn(DRETURN)
+    }
+    Type.LONG -> {
+        visitInsn(LCONST_0)
+        visitInsn(LRETURN)
+    }
+    Type.OBJECT, Type.ARRAY -> {
+        visitInsn(ACONST_NULL)
+        visitInsn(ARETURN)
+    }
+    else -> error("Impossible")
 }

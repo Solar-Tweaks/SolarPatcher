@@ -107,7 +107,7 @@ internal val configDelegateClass: Class<*> by lazy {
         with(visitMethod(ACC_PUBLIC, "reloadPlayerCosmetics", "()V", null, null)) {
             visitCode()
             getObject<ConfigFetcher>()
-            invokeMethod(ConfigFetcher::configs.getter)
+            getProperty(ConfigFetcher::configs)
             getPlayerBridge()
             callBridgeMethod(Bridge.getPlayerNameMethod)
             invokeMethod(java.util.Map::class.java.getMethod("remove", Any::class.java))

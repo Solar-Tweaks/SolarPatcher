@@ -236,29 +236,7 @@ class ConstantValueTransform(
 @Suppress("RemoveRedundantQualifierName") // Can't be removed
 class StubMethodTransform(desc: MethodDescription) : ImplementTransform(matchDescription(desc), {
     val returnType = getMethodType(desc.descriptor).returnType
-    when (returnType.sort) {
-        VOID -> visitInsn(RETURN)
-        BOOLEAN, BYTE, SHORT, CHAR, INT -> {
-            visitInsn(ICONST_0)
-            visitInsn(IRETURN)
-        }
-        Type.FLOAT -> {
-            visitInsn(FCONST_0)
-            visitInsn(FRETURN)
-        }
-        Type.DOUBLE -> {
-            visitInsn(DCONST_0)
-            visitInsn(DRETURN)
-        }
-        Type.LONG -> {
-            visitInsn(LCONST_0)
-            visitInsn(LRETURN)
-        }
-        OBJECT, ARRAY -> {
-            visitInsn(ACONST_NULL)
-            visitInsn(ARETURN)
-        }
-    }
+    returnStub(returnType)
 })
 
 // Utility to wrap a methodvisitor into a transform

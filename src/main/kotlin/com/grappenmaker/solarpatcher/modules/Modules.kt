@@ -62,24 +62,6 @@ sealed class JoinedModule(@Transient private val modules: List<Module> = listOf(
         modules.mapNotNull { it.generate(node) }.reduceTransforms()
 }
 
-const val initMethodName = "init"
-
-private val metadataMatcher: ClassMatcher = { node ->
-    val metaTypes = listOf(
-        "blogPosts",
-        "modSettings",
-        "clientSettings",
-        "pinnedServers",
-        "serverIntegration",
-        "featureFlag",
-        "knownServersHash",
-        "store"
-    )
-
-    node.methods.find { it.name == initMethodName }
-        ?.constants?.containsAll(metaTypes) == true
-}
-
 @Serializable
 data class Metadata(
     val removeCalls: List<String> = listOf(
@@ -90,10 +72,23 @@ data class Metadata(
         "blogPosts"
     ),
     override val isEnabled: Boolean = false
-) : Module(),
-    TransformGenerator by matcherGenerator(
-        ClassTransform(
-            VisitorTransform(matchName(initMethodName)) { parent ->
+) : Module() {
+    override fun generate(node: ClassNode): ClassTransform? {
+        val metaTypes = listOf(
+            "blogPosts",
+            "modSettings",
+            "clientSettings",
+            "pinnedServers",
+            "serverIntegration",
+            "featureFlag",
+            "knownServersHash",
+            "store"
+        )
+
+        val method = node.methods.find { it.constants.containsAll(metaTypes) } ?: return null
+
+        return ClassTransform(
+            VisitorTransform(method.asDescription(node).asMatcher()) { parent ->
                 object : MethodVisitor(API, parent) {
                     private var lastMetadata: String? = null
 
@@ -110,15 +105,16 @@ data class Metadata(
                         isInterface: Boolean
                     ) {
                         if (
-                            descriptor != "(L$internalString;L${getInternalName<Consumer<*>>()};)V"
+                            !descriptor.contains("Ljava/util/HashMap;)")
                             || lastMetadata !in removeCalls
                         ) {
                             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
                         }
                     }
                 }
-            }), matcher = metadataMatcher
-    )
+            })
+    }
+}
 
 @Serializable
 data class ModpacketRemoval(
@@ -257,7 +253,7 @@ data class CustomCommands(
 
                 // Load chat event class onto the stack
                 getObject<Chat>()
-                invokeMethod(Chat::outgoingChatEvent.getter)
+                getProperty(Chat::outgoingChatEvent)
 
                 // Compare the strings
                 invokeMethod(String::equals)
@@ -413,14 +409,14 @@ data class RPCUpdate(
         dup() // 2x iterator
         invokeMethod(Iterator<*>::next) // iterator entry
         dup() // iterator 2x entry
-        invokeMethod(Map.Entry<*, *>::value.getter) // iterator entry list
+        getProperty(Map.Entry<*, *>::value) // iterator entry list
         visitTypeInsn(CHECKCAST, "java/util/List")
         invokeMethod(Collection<*>::stream)
         loader() // iterator entry listStream string
         invokeMethod(::doesMatch) // iterator entry listStream predicate
         invokeMethod(Stream<*>::anyMatch) // iterator entry bool
         visitJumpInsn(IFEQ, reloop) // iterator entry
-        invokeMethod(Map.Entry<*, *>::key.getter) // iterator string
+        getProperty(Map.Entry<*, *>::key) // iterator string
         visitTypeInsn(CHECKCAST, "java/lang/String")
         visitInsn(SWAP) // string iterator
         pop() // string
@@ -638,7 +634,7 @@ object ModName : Module(),
         visitLabel(start)
 
         getObject<CriticalRuntimeData>()
-        invokeMethod(CriticalRuntimeData::version.getter)
+        getProperty(CriticalRuntimeData::version)
         concat("(L$internalString;)L$internalString;", "Lunar Client \u0001/$solarVersion")
         returnMethod(ARETURN)
 
@@ -844,7 +840,7 @@ data class RemoveChatDelay(override val isEnabled: Boolean = false) : Module() {
 }
 
 @Serializable
-data class AllowCosmeticCombinations(override val isEnabled: Boolean = true) : Module() {
+data class AllowCosmeticCombinations(override val isEnabled: Boolean = false) : Module() {
     override fun generate(node: ClassNode): ClassTransform? {
         val method = node.methods.find {
             it.desc == "(Lcom/google/gson/JsonObject;)V" &&
@@ -876,5 +872,28 @@ data class AllowCosmeticCombinations(override val isEnabled: Boolean = true) : M
                 }
             }
         })
+    }
+}
+
+@Serializable
+data class RemoveSplashBlur(override val isEnabled: Boolean = false) : Module() {
+    override fun generate(node: ClassNode): ClassTransform? {
+        val init = node.methods.find { it.name == "<init>" } ?: return null
+        if (!init.hasConstant("backgrounds/panorama_0.png")) return null
+
+        val renderMethod = node.methods.find { it.calls(matchName("glCopyTexSubImage2D")) } ?: return null
+        val desc = renderMethod.asDescription(node).asMatcher()
+        return ClassTransform(
+            listOf(
+                VisitorTransform(desc) { parent ->
+                    object : MethodVisitor(API, parent) {
+                        override fun visitInsn(opcode: Int) {
+                            super.visitInsn(if (opcode == ICONST_3) ICONST_0 else opcode)
+                        }
+                    }
+                },
+                RemoveInvokeTransform(desc, matchName("glTexParameteri"), popCount = 3)
+            )
+        )
     }
 }

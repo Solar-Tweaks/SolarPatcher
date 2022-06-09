@@ -1,5 +1,5 @@
 {
-    "patcherVersion": "1.6.1",
+    "patcherVersion": "1.7",
     "debug": false,
     "enableAll": false,
     "nickhider": {
@@ -76,7 +76,8 @@
                 "prefix": "/play bedwars_practice",
                 "suffix": ""
             }
-        }
+        },
+        "useHypixelCommands": true
     },
     "rpcUpdate": {
         "clientID": 920998351430901790,
@@ -189,6 +190,12 @@
         ]
     },
     "removeChatDelay": {
-        "isEnabled": true
+        "isEnabled": false
+    },
+    "allowCosmeticCombinations": {
+        "isEnabled": false
+    },
+    "removeSplashBlur": {
+        "isEnabled": false
     }
 }

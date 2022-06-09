@@ -25,10 +25,7 @@ import com.grappenmaker.solarpatcher.asm.isInterface
 import com.grappenmaker.solarpatcher.asm.matching.MethodMatching.matchName
 import com.grappenmaker.solarpatcher.asm.matching.asMatcher
 import com.grappenmaker.solarpatcher.asm.transform.*
-import com.grappenmaker.solarpatcher.asm.util.getObject
-import com.grappenmaker.solarpatcher.asm.util.invokeMethod
-import com.grappenmaker.solarpatcher.asm.util.loadVariable
-import com.grappenmaker.solarpatcher.asm.util.returnMethod
+import com.grappenmaker.solarpatcher.asm.util.*
 import com.grappenmaker.solarpatcher.util.generation.Accessors
 import com.grappenmaker.solarpatcher.util.generation.IConfigDelegate
 import com.grappenmaker.solarpatcher.util.generation.Instances
@@ -108,7 +105,7 @@ private object ImplementSkinLayer : Module() {
                         hasVisited = true
                         loadVariable(3)
                         getObject<Instances>()
-                        invokeMethod(Instances::playerItemsLayer.getter)
+                        getProperty(Instances::playerItemsLayer)
                         visitInsn(ICONST_1)
                         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
 

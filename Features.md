@@ -11,9 +11,9 @@ A full list of all features supported by Solar Patcher with a short description.
 - RPC - Show your activity, and show "Solar Tweaks" in your Discord Rich Presence
 - Custom Mods - Allows you to define custom mods, and creates some custom mods as well
 - Remove Fake Levelhead - Removes the "feature" that lunar has to assign nicked players random levels in their LevelHead
-- Fix Pings - Fixes the chat mod "Play sound on mention" system to only respond to actual chat messages, not action bars
+- Fix Ping Sound - Fixes the chat mod "Play sound on mention" system to only respond to actual chat messages, not action bars
 - NoHitDelay - Enables legacy combat, that makes sure the client doesn't prevent swing/attack packets being sent for no reason
-- Window Name - Allows you to change the name of the window
+- Window Title - Allows you to change the name of the window
 - Tasklist Privacy - Prevents Lunar Client from sending all your processes to Lunar Servers
 - Hostlist Privacy - Prevents Lunar Client from sending all your hosts file to Lunar Servers
 - Levelhead - Change levelhead prefix
@@ -37,6 +37,8 @@ A full list of all features supported by Solar Patcher with a short description.
 - Enable Wrapped - Allows you to re-enable lunar client Wrapped, which can be useful for the people that still want to view it
 - Remove Chat Delay - Removes the client-side websocket chat delay (to lunar client friends)
 - Allow Cosmetic Cominations - Allows a user to use multiple incompatible cosmetics at once
+- Remove Splash Blur - Removes the blur on the lunar background panorama 
+- Remove Lunar Chat Cooldown - Removes the chat delay of lunar's friend chat system
 
 #### Always enabled modules (not configurable and internal)
 - RuntimeData - Internal module for looking for lunar client classes and methods

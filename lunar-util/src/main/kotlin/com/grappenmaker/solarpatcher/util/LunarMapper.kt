@@ -27,6 +27,7 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
 import kotlin.system.exitProcess
+import kotlin.system.measureTimeMillis
 
 // Utility to map the lunar client classes, so the output jar contains
 // classes how they look on runtime.
@@ -81,23 +82,30 @@ fun main(args: Array<String>) {
         .also { if (it.exists()) it.delete() }
 
     val outputJar = JarOutputStream(output.outputStream())
-    passThrough.forEach { (name, file) -> outputJar.writeFile(name, file) }
+    val passthroughTime =
+        measureTimeMillis { passThrough.forEach { (name, file) -> outputJar.writeFile(name, file) } }
+
+    println("Took ${passthroughTime}ms to write passthrough resources")
 
     println("Written ${passThrough.size} files without patching")
     println("Starting to patch...")
 
-    toPatch.map { (name, file) ->
-        val patch = patches[name] ?: error("Impossible")
-        val mappedName = mappings[name] ?: name
+    val patchTime = measureTimeMillis {
+        toPatch.map { (name, file) ->
+            val patch = patches[name] ?: error("Impossible")
+            val mappedName = mappings[name] ?: name
 
-        outputJar.putNextEntry(JarEntry("$mappedName.class"))
-        when (mappedName) {
-            "net/optifine/Config" -> outputJar.write(file)
-            else -> Patch.patch(file, patch, outputJar)
+            outputJar.putNextEntry(JarEntry("$mappedName.class"))
+            when (mappedName) {
+                "net/optifine/Config" -> outputJar.write(file)
+                else -> Patch.patch(file, patch, outputJar)
+            }
+
+            outputJar.closeEntry()
         }
-
-        outputJar.closeEntry()
     }
+
+    println("Took ${patchTime}ms to patch classes")
 
     println("Writing file...")
     outputJar.close()

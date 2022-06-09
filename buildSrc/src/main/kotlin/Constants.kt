@@ -26,7 +26,7 @@ object Constants {
 
 // Versions of dependencies
 object Versions {
-    const val project = "1.6.1"
+    const val project = "1.7"
     const val kotlin = "1.7.0"
     const val serializationJSON = "1.3.2"
     const val asm = "9.2"
