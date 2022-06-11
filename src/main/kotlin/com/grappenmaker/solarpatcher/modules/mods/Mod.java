@@ -16,20 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Constant values
-object Constants {
-    const val premainClass = "com.grappenmaker.solarpatcher.AgentMain"
-    const val saveConfigClass = "com.grappenmaker.solarpatcher.config.SaveDefaultConfig"
-    const val defaultConfig = "config.example.json"
-    const val updaterConfig = "updater.json"
-}
+package com.grappenmaker.solarpatcher.modules.mods;
 
-// Versions of dependencies
-object Versions {
-    const val project = "1.7"
-    const val kotlin = "1.7.0"
-    const val serializationJSON = "1.3.2"
-    const val asm = "9.2"
-    const val detekt = "1.19.0"
-    const val gson = "2.9.0"
+
+import com.google.gson.Gson;
+import kotlinx.serialization.json.Json;
+
+import java.io.IOException;
+
+public abstract class Mod {
+    public Mod(ModInfo modInfo) {
+        this.modInfo = modInfo;
+    }
+
+    private final ModInfo modInfo;
+
+    public abstract void onEnable();
+    public abstract void onDisable();
+
+    public ModInfo getModInfo() {
+        return modInfo;
+    }
 }

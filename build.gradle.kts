@@ -43,6 +43,9 @@ dependencies {
 
     // Kotlin dependencies
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serializationJSON}")
+
+    // Other dependencies
+    implementation("com.google.code.gson:gson:${Versions.gson}")
 }
 
 // Add dependencies and manifest to jar task

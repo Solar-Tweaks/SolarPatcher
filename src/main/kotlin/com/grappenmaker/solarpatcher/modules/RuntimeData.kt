@@ -109,6 +109,7 @@ object Bridge : FinderContainer {
     val getServerDataMethod by +findBridgeMethod("bridge\$getCurrentServerData")
     val getServerIPMethod by +findBridgeMethod("bridge\$serverIP")
     val displayMessageMethod by +findBridgeMethod("bridge\$addChatMessage")
+    val getGameDirMethod by +findBridgeMethod("bridge\$getMcDataDir")
 
     private fun findBridgeMethod(
         name: String,

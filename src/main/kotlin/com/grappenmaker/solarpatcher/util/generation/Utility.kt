@@ -25,6 +25,7 @@ import com.grappenmaker.solarpatcher.util.ensure
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
+import java.io.File
 import java.util.*
 
 // Generated class supplying various utility functions
@@ -100,6 +101,16 @@ internal val utilityClass by lazy {
             visitEnd()
         }
 
+        with(visitMethod(Opcodes.ACC_PUBLIC, "getMCDataDir", "()Ljava/io/File;", null, null)) {
+            visitCode()
+
+            getClientBridge()
+            callBridgeMethod(Bridge.getGameDirMethod)
+            returnMethod(Opcodes.ARETURN)
+            visitMaxs(2, 1)
+            visitEnd()
+        }
+
         implementGetVersion()
     }
 }
@@ -109,5 +120,6 @@ interface IUtility {
     fun getPlayerUUID(): UUID
     fun getServerIP(): String?
     fun getVersion(): String
+    fun getMCDataDir(): File
     fun displayPopup(title: String, description: String)
 }

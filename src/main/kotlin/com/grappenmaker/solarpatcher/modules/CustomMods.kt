@@ -26,6 +26,7 @@ import com.grappenmaker.solarpatcher.asm.transform.ClassTransform
 import com.grappenmaker.solarpatcher.asm.transform.VisitorTransform
 import com.grappenmaker.solarpatcher.asm.util.*
 import com.grappenmaker.solarpatcher.configuration
+import com.grappenmaker.solarpatcher.util.generation.Accessors
 import com.grappenmaker.solarpatcher.util.generation.createAccountNameMod
 import com.grappenmaker.solarpatcher.util.generation.createTextMod
 import kotlinx.serialization.Serializable
@@ -35,6 +36,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode
+import java.util.jar.JarFile
 import kotlin.reflect.KFunction
 
 // TextMod class for user configurable custom mods
@@ -141,8 +143,37 @@ private object LangMapper : Module() {
 
 private val mods by lazy { registerMods(configuration.customMods.textMods) }
 
+// Load custom mods from solarMods directory
+private fun loadCustomMods(): List<Mod> {
+    val gameDir = Accessors.Utility.getMCDataDir()
+
+    val modsDir = gameDir.resolve("solar-mods")
+    for (mod in modsDir.listFiles()!!) {
+        if (mod.name.endsWith(".jar")) {
+            val jarFile = JarFile(mod)
+            loadCustomMod(jarFile)
+        }
+    }
+
+    return listOf()
+}
+
+private fun loadCustomMod(mod: JarFile) {
+    for (modEntry in mod.entries()) {
+        println(modEntry)
+        println(modEntry.name.equals("mod-info.json"))
+        if (modEntry.name.equals("mod-info.json")) {
+            val modJson = mod.getInputStream(modEntry).bufferedReader().use { it.readText() }
+            println(modJson) // works!
+
+            // TODO: convert to modinfo class, load main class, and call onenable method
+        }
+    }
+}
+
+
 // TODO: mod system
-fun registerMods(configured: List<TextMod>) = listOf(nameMod) + configured.map {
+fun registerMods(configured: List<TextMod>) = listOf(nameMod) + loadCustomMods() + configured.map {
     Mod(it.id, it.name) {
         visitLdcInsn(it.id)
         visitLdcInsn(it.text)
